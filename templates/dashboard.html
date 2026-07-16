@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Analytics Dashboard{% endblock %}
+
+{% block head %}
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="dash-shell">
+
+    <header class="topbar">
+        <div class="topbar-title">
+            <span class="eyebrow">Sales Analytics</span>
+            <h1>Dashboard</h1>
+        </div>
+        <div class="live-status" id="liveStatus">
+            <span class="pulse-dot"></span>
+            <span class="live-label">live</span>
+            <span class="live-time" id="liveTime">--:--:--</span>
+        </div>
+    </header>
+
+    <form class="filter-bar" id="filterForm" method="GET" action="{{ url_for('dashboard') }}">
+        <div class="filter-field">
+            <label for="startDate">From</label>
+            <input type="date" id="startDate" name="start" value="{{ start or '' }}">
+        </div>
+        <div class="filter-field">
+            <label for="endDate">To</label>
+            <input type="date" id="endDate" name="end" value="{{ end or '' }}">
+        </div>
+        <div class="filter-field">
+            <label for="regionFilter">Region</label>
+            <select id="regionFilter" name="region">
+                <option value="All" {% if not selected_region or selected_region == 'All' %}selected{% endif %}>All regions</option>
+                {% for r in regions %}
+                <option value="{{ r }}" {% if selected_region == r %}selected{% endif %}>{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn-secondary">Apply filters</button>
+        <a href="{{ url_for('export_csv', region=selected_region) }}" class="btn-outline">Export CSV</a>
+    </form>
+
+    {% if not has_data %}
+    <div class="empty-state">
+        <h2>No data yet</h2>
+        <p>Upload a spreadsheet to see sales, profit, and trend charts here.</p>
+        <a href="{{ url_for('index') }}" class="btn-primary">Upload data</a>
+    </div>
+    {% else %}
+
+    <section class="kpi-row">
+        <div class="kpi-card">
+            <span class="kpi-label">Total sales</span>
+            <span class="kpi-value" id="kpiSales">₹{{ "{:,.2f}".format(total_sales) }}</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Total profit</span>
+            <span class="kpi-value" id="kpiProfit">₹{{ "{:,.2f}".format(total_profit) }}</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Total orders</span>
+            <span class="kpi-value" id="kpiOrders">{{ "{:,}".format(total_orders) }}</span>
+        </div>
+        <div class="kpi-card">
+            <span class="kpi-label">Avg. order value</span>
+            <span class="kpi-value" id="kpiAvg">₹{{ "{:,.2f}".format(avg_sales) }}</span>
+        </div>
+    </section>
+
+    <section class="chart-grid">
+        <div class="chart-card"><div id="barChart"></div></div>
+        <div class="chart-card"><div id="pieChart"></div></div>
+        <div class="chart-card"><div id="lineChart"></div></div>
+        <div class="chart-card"><div id="areaChart"></div></div>
+    </section>
+
+    <script id="chart-data" type="application/json">
+        {
+            "bar": {{ barJSON | safe }},
+            "pie": {{ pieJSON | safe }},
+            "line": {{ lineJSON | safe }},
+            "area": {{ areaJSON | safe }}
+        }
+    </script>
+    {% endif %}
+
+</div>
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Upload Data — Analytics Dashboard{% endblock %}
+
+{% block content %}
+<main class="upload-shell">
+    <div class="upload-card">
+        <span class="eyebrow">Sales Analytics</span>
+        <h1>Bring in your data</h1>
+        <p class="lede">
+            Drop in a CSV or Excel export. Column names don't need to match exactly —
+            we'll map <code>date</code>, <code>revenue</code>, <code>qty</code> and similar
+            variants onto the right fields automatically.
+        </p>
+
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+            <label class="dropzone" id="dropzone" for="fileInput">
+                <input type="file" id="fileInput" name="file" accept=".csv,.xlsx,.xls" required>
+                <span class="dropzone-icon">↑</span>
+                <span class="dropzone-text" id="dropzoneText">Choose a file or drag it here</span>
+                <span class="dropzone-hint">.csv · .xlsx · .xls — up to 10 MB</span>
+            </label>
+
+            <button type="submit" class="btn-primary">Upload &amp; analyze</button>
+        </form>
+
+        <div class="required-cols">
+            <span class="required-cols-label">Expected fields</span>
+            <div class="pill-row">
+                <span class="pill">order_date</span>
+                <span class="pill">region</span>
+                <span class="pill">category</span>
+                <span class="pill">product</span>
+                <span class="pill">sales</span>
+                <span class="pill">quantity</span>
+                <span class="pill">profit</span>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="{{ url_for('static', filename='js/upload.js') }}"></script>
+{% endblock %}
